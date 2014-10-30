@@ -1,0 +1,5 @@
+/api/users/{user_id}/count_pending_messages
+/api/users/{user_id}/get_messages
+/api/users/{user_id}/get_friends_progress
+/api/users/{user_id}/get_friends_score
+/api/users/{user_id}
