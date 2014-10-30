@@ -1,5 +1,6 @@
 require 'optparse'
 
+# Parse command line options
 options = {}
 optparser = OptionParser.new do |opts|
 	opts.banner = "Usage: logparse.rb [options]"
@@ -9,14 +10,15 @@ optparser = OptionParser.new do |opts|
 	end
 end
 optparser.parse!
-
 abort optparser.help unless options[:logfile] and options[:requests]
 
+# Import requests to be analys
 requests = {}
 File.open(options[:requests],'r') do |f|
 	f.each { |l| requests[l.gsub(/\d+/,"{user_id}").strip] = {} }
 end
 
+# Collect data from logfile
 rgx = /(?<datetime>[0-9.:T+-]*)\sheroku.*method=(?<method>.*)\spath=(?<path>.*)\shost=(?<host>.*)\sfwd="(?<fwd>.*)"\sdyno=(?<dyno>.*)\sconnect=(?<ctime>\d+)ms\sservice=(?<stime>\d+)ms\sstatus=(?<status>\d+)\sbytes=(?<bytes>\d+)/i
 
 f = File.open(options[:logfile],"r").each do |line|
@@ -38,6 +40,7 @@ f = File.open(options[:logfile],"r").each do |line|
 end
 f.close
 
+# Process
 requests.each do |path,methods|
 	methods.each do |method,stats|
 		stats[:mean] = stats[:time] / stats[:hits].to_f
@@ -53,9 +56,10 @@ requests.each do |path,methods|
 	end
 end
 
+
+# Output
 printf("%-50s%-10s%-8s%-10s%-13s%-10s%-15s\n\n",
 			 "PATH","METHOD","HITS","MEAN(ms)","MEDIAN(ms)","MODE(ms)","MAX RESP DYNO")
-
 requests.each do |path,methods|
 	methods.each do |method,stats|
 		printf("%-50s%-10s%-8i",path,method,stats[:hits])
